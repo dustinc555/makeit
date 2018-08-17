@@ -7,7 +7,7 @@ A python script to generate a makefile for an existing c++ project.
 2) ```./makeit/makeit.py```
 3) ```make```
 
-## possible tags
+## possible flags
 
 * --dir "the desired working directory if blank uses current working directory"
 * --flags "any additional compilation flags for the compiler"
