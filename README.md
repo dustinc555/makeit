@@ -1,5 +1,5 @@
 # makeit
-A python script to generate a makefile for an existing C++ project.
+A python script to generate a makefile for an existing C++ project
 
 
 ## Instructions
