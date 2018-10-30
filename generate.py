@@ -1,37 +1,23 @@
-#!/usr/bin/env python
-
-# Inspiration driven from: https://github.com/Melinysh/PyMake
-# which falls under: The MIT License (MIT) Copyright (c) 2018 Stephen Melinyshyn
-import os, glob
-from os import listdir
-import argparse
-import subprocess
-from ConfigParser import SafeConfigParser
-from util.py import *
 
 
+def findFiles(contents):
+
+    files += list((f for f in listdir(contents['directory']) if f.endswith('.cpp')))
+    if len(files) == 0:
+        raise RuntimeError("No cpp source files.")
+    return 
 
 
-def getArguments(contents):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dir", help="The working directory, if blank uses current directory.")
-    parser.add_argument("--flags", help="Compilation flags. If left blank uses: .")
-    parser.add_argument("--lang", help="The language to generate make for. \nOptions: Cuda, C++, ")
-    args = parser.parse_args()
-
-    contents['directory'] = args.dir if args.dir else os.getcwd()
-    contents['flags'] = args.flags if args.flags else "-Wall -O3 -std=c++11 $(INC)"
-    contents['lang'] = args.lang if args.lang else "C++"
 
 def generateMakefile(contents):
     fileContents = ""
 
-    files = list((f for f in listdir(contents['directory']) if f.endswith('.cpp')))
-    if len(files) == 0:
-        raise RuntimeError("No cpp source files.")
+    files = findFiles(contents)
 
     mainFile = ""
     numberOfMains = 0
+    files = findFiles(contents)
+
     for file in files:
         if runBashCommand('grep -i ' + '"int main()" ' + file).strip() == "int main()":
             mainFile = file.split('.')[0]
@@ -40,6 +26,7 @@ def generateMakefile(contents):
         print('Multiple main functions detected.\nThe program may not run correctly.')
     elif numberOfMains == 0:
         print("There is no main function.")
+        
     filesiter = iter(files)
     fileContents += 'SOURCE = '
     fileContents += next(filesiter) + " \\\n"
@@ -79,12 +66,3 @@ def generateMakefile(contents):
     fileContents += '%.d: %.cpp\n'
     fileContents += '	@set -e; /usr/bin/rm -rf $@;$(GCC) -MM $< $(CXXFLAGS) > $@'
     return fileContents
-
-def start():
-    contents = {}
-    getArguments(contents)
-    MakeFile = generateMakefile(contents)
-    writeToMakefile(MakeFile)
-    exit(0)
-
-start()
